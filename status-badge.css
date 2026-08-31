@@ -1,0 +1,139 @@
+/* ============================================================
+   Status Badge Kit · 状态标签套件 v1.0（零依赖，纯 CSS）
+   ------------------------------------------------------------
+   · 所有类名带 sb- 前缀，不会与你的项目样式冲突
+   · 暗色模式：<html data-theme="dark"> 时自动切换（不需要可删掉该段）
+   · 快速用法：
+       <span class="sb-tag sb-tag--success">
+         <i class="sb-dot sb-dot--success"></i>已完成
+       </span>
+   · 变体：sb-tag--outline（描边）/ sb-tag--solid（实心）/ sb-tag--ghost（圆点+中性文字）
+   · 尺寸：sb-tag--xs(18px) / sm(21px) / 默认 md(24px) / lg(30px)
+   ============================================================ */
+
+:root {
+  /* 中性文字色（幽灵变体用；可改成你项目自己的次要文字变量） */
+  --sb-ink: #52525b;
+
+  /* ---- 语义色令牌 · 亮色模式 ---- */
+  --sb-success-bg: #eefaf3; --sb-success-tx: #067647; --sb-success-dot: #12b76a;
+  --sb-info-bg:    #eef4ff; --sb-info-tx:    #175cd3; --sb-info-dot:    #2e90fa;
+  --sb-warn-bg:    #fef6e7; --sb-warn-tx:    #b54708; --sb-warn-dot:    #f79009;
+  --sb-err-bg:     #fef1f0; --sb-err-tx:     #b42318; --sb-err-dot:     #f04438;
+  --sb-neutral-bg: #f1f1f4; --sb-neutral-tx: #3f3f46; --sb-neutral-dot: #98a2b3;
+  --sb-violet-bg:  #f4f1fe; --sb-violet-tx:  #5925dc; --sb-violet-dot:  #7a5af8;
+  --sb-teal-bg:    #eefcfa; --sb-teal-tx:    #087981; --sb-teal-dot:    #15b79e;
+}
+
+[data-theme="dark"] {
+  --sb-ink: #a1a1ab;
+
+  /* ---- 语义色令牌 · 暗色模式 ---- */
+  --sb-success-bg: rgba(18,183,106,.13);  --sb-success-tx: #3ecf8e; --sb-success-dot: #12b76a;
+  --sb-info-bg:    rgba(46,144,250,.13);  --sb-info-tx:    #6aa9ff; --sb-info-dot:    #2e90fa;
+  --sb-warn-bg:    rgba(247,144,9,.14);   --sb-warn-tx:    #fdb022; --sb-warn-dot:    #f79009;
+  --sb-err-bg:     rgba(240,68,56,.13);   --sb-err-tx:     #ff7566; --sb-err-dot:     #f04438;
+  --sb-neutral-bg: rgba(152,162,179,.14); --sb-neutral-tx: #a8b0bf; --sb-neutral-dot: #98a2b3;
+  --sb-violet-bg:  rgba(122,90,248,.14);  --sb-violet-tx:  #a48af8; --sb-violet-dot:  #7a5af8;
+  --sb-teal-bg:    rgba(21,183,158,.13);  --sb-teal-tx:    #2cd4c0; --sb-teal-dot:    #15b79e;
+}
+
+/* ---------- 基础容器（默认 = 柔和填充变体） ---------- */
+.sb-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 24px; padding: 0 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 500; line-height: 1;
+  white-space: nowrap; vertical-align: middle;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+/* ---------- 指示圆点 ---------- */
+.sb-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.sb-dot--success { background: var(--sb-success-dot); }
+.sb-dot--info    { background: var(--sb-info-dot); }
+.sb-dot--warn    { background: var(--sb-warn-dot); }
+.sb-dot--err     { background: var(--sb-err-dot); }
+.sb-dot--neutral { background: var(--sb-neutral-dot); }
+.sb-dot--violet  { background: var(--sb-violet-dot); }
+.sb-dot--teal    { background: var(--sb-teal-dot); }
+/* 空心圆点（离线等"无状态"态） */
+.sb-dot--hollow  { background: transparent; box-shadow: inset 0 0 0 1.5px var(--sb-neutral-dot); }
+
+/* ---------- 语义配色（bg + 文字色成对） ---------- */
+.sb-tag--success { background: var(--sb-success-bg); color: var(--sb-success-tx); }
+.sb-tag--info    { background: var(--sb-info-bg);    color: var(--sb-info-tx); }
+.sb-tag--warn    { background: var(--sb-warn-bg);    color: var(--sb-warn-tx); }
+.sb-tag--err     { background: var(--sb-err-bg);     color: var(--sb-err-tx); }
+.sb-tag--neutral { background: var(--sb-neutral-bg); color: var(--sb-neutral-tx); }
+.sb-tag--violet  { background: var(--sb-violet-bg);  color: var(--sb-violet-tx); }
+.sb-tag--teal    { background: var(--sb-teal-bg);    color: var(--sb-teal-tx); }
+
+/* ---------- 变体：描边（适合叠加在图片/彩色背景上） ---------- */
+.sb-tag--outline { background: transparent !important; }
+.sb-tag--outline.sb-tag--success { box-shadow: inset 0 0 0 1px var(--sb-success-tx); color: var(--sb-success-tx); }
+.sb-tag--outline.sb-tag--info    { box-shadow: inset 0 0 0 1px var(--sb-info-tx);    color: var(--sb-info-tx); }
+.sb-tag--outline.sb-tag--warn    { box-shadow: inset 0 0 0 1px var(--sb-warn-tx);    color: var(--sb-warn-tx); }
+.sb-tag--outline.sb-tag--err     { box-shadow: inset 0 0 0 1px var(--sb-err-tx);     color: var(--sb-err-tx); }
+.sb-tag--outline.sb-tag--neutral { box-shadow: inset 0 0 0 1px var(--sb-neutral-dot); color: var(--sb-neutral-tx); }
+
+/* ---------- 变体：实心（强对比，仅用于关键状态） ---------- */
+.sb-tag--solid { color: #fff !important; }
+.sb-tag--solid.sb-tag--success { background: var(--sb-success-dot); }
+.sb-tag--solid.sb-tag--info    { background: var(--sb-info-dot); }
+.sb-tag--solid.sb-tag--warn    { background: var(--sb-warn-dot); }
+.sb-tag--solid.sb-tag--err     { background: var(--sb-err-dot); }
+.sb-tag--solid.sb-tag--neutral { background: var(--sb-neutral-dot); }
+
+/* ---------- 变体：幽灵（圆点 + 中性文字，最克制，适合高密度列表） ---------- */
+.sb-tag--ghost { background: transparent !important; color: var(--sb-ink); }
+
+/* ---------- 尺寸（默认 md = 24px） ---------- */
+.sb-tag--xs { height: 18px; padding: 0 7px;  font-size: 11px;   gap: 4px; }
+.sb-tag--xs .sb-dot { width: 5px; height: 5px; }
+.sb-tag--sm { height: 21px; padding: 0 9px;  font-size: 12px;   gap: 5px; }
+.sb-tag--sm .sb-dot { width: 6px; height: 6px; }
+.sb-tag--lg { height: 30px; padding: 0 14px; font-size: 13.5px; gap: 7px; }
+.sb-tag--lg .sb-dot { width: 7px; height: 7px; }
+
+/* ---------- 变体：方角（优先级标签常用，与胶囊形状态标签区分） ---------- */
+.sb-tag--square { border-radius: 7px; }
+
+/* ---------- 动效：加载环（进行中的瞬时状态） ---------- */
+.sb-spinner {
+  width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid rgba(46,144,250,.25); border-top-color: var(--sb-info-dot);
+  animation: sb-spin .7s linear infinite;
+}
+@keyframes sb-spin { to { transform: rotate(360deg); } }
+
+/* ---------- 动效：呼吸点（在线/运行中） ---------- */
+.sb-dot--pulse { animation: sb-pulse-green 2s ease-out infinite; }
+.sb-dot--pulse.sb-dot--success { animation-name: sb-pulse-green; }
+.sb-dot--pulse.sb-dot--warn    { animation-name: sb-pulse-amber; }
+.sb-dot--pulse.sb-dot--info    { animation-name: sb-pulse-blue; }
+@keyframes sb-pulse-green {
+  0%   { box-shadow: 0 0 0 0 rgba(18,183,106,.45); }
+  70%  { box-shadow: 0 0 0 5px rgba(18,183,106,0); }
+  100% { box-shadow: 0 0 0 0 rgba(18,183,106,0); }
+}
+@keyframes sb-pulse-amber {
+  0%   { box-shadow: 0 0 0 0 rgba(247,144,9,.45); }
+  70%  { box-shadow: 0 0 0 5px rgba(247,144,9,0); }
+  100% { box-shadow: 0 0 0 0 rgba(247,144,9,0); }
+}
+@keyframes sb-pulse-blue {
+  0%   { box-shadow: 0 0 0 0 rgba(46,144,250,.45); }
+  70%  { box-shadow: 0 0 0 5px rgba(46,144,250,0); }
+  100% { box-shadow: 0 0 0 0 rgba(46,144,250,0); }
+}
+
+/* 尊重系统"减弱动态效果"偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .sb-dot--pulse, .sb-spinner { animation: none; }
+}
+
+/* ---------- 可选：状态选择器（配合 status-tag.js 的 StatusTag.picker） ---------- */
+.sb-picker { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+.sb-picker .sb-tag { cursor: pointer; border: 0; font-family: inherit; }
+.sb-picker .sb-tag:hover { opacity: .82; }
+.sb-picker .sb-tag.is-active { box-shadow: inset 0 0 0 1.5px currentColor; opacity: 1; }
