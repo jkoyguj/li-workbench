@@ -238,6 +238,33 @@
       gap: 12px;
     }
 
+    .plan-date-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .plan-date-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .plan-date-input {
+      flex: 1;
+      max-width: 180px;
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      cursor: pointer;
+    }
+    .plan-date-input:focus {
+      border-color: var(--primary);
+    }
+
     .empty-tip {
       padding: 24px 12px;
       text-align: center;
@@ -1815,6 +1842,10 @@
             <div class="col-left">
               <div class="card">
                 <div class="card-title">计划</div>
+                <div class="plan-date-bar">
+                  <label class="plan-date-label" for="planDate">日期</label>
+                  <input type="date" id="planDate" class="plan-date-input">
+                </div>
                 <div class="plan-list" id="taskList"></div>
                 <button class="add-btn" id="addPlan">+ 添加计划</button>
               </div>
@@ -2175,6 +2206,7 @@
     const mobileTitle = document.getElementById('mobileTitle');
     const taskList = document.getElementById('taskList');
     const addPlan = document.getElementById('addPlan');
+    const planDate = document.getElementById('planDate');
     const notesTaskList = document.getElementById('notesTaskList');
     const addNotesTask = document.getElementById('addNotesTask');
     const mobileTaskList = document.getElementById('mobileTaskList');
@@ -2222,13 +2254,28 @@
     });
 
     const STORAGE_KEYS = {
-      today: 'li-workbench-tasks',
+      today: 'li-workbench-tasks',      // 仅作历史数据迁移用；今日计划现按日期存储
       notes: 'li-workbench-tasks-notes',
       mobile: 'li-workbench-tasks-mobile'
     };
 
+    // 按日期存储今日计划：key 形如 plan_YYYY-MM-DD（例 plan_2026-09-06）
+    function todayDateStr() {
+      const d = new Date();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${d.getFullYear()}-${m}-${day}`;
+    }
+    let currentPlanDate = todayDateStr();   // 当前查看的计划日期
+
+    function planKeyFor(dateStr) { return 'plan_' + dateStr; }
+
+    function storageKeyFor(listType) {
+      return listType === 'today' ? planKeyFor(currentPlanDate) : STORAGE_KEYS[listType];
+    }
+
     function loadTasks(listType = 'today') {
-      const key = STORAGE_KEYS[listType];
+      const key = storageKeyFor(listType);
       try {
         const data = localStorage.getItem(key);
         const tasks = data ? JSON.parse(data) : [];
@@ -2247,7 +2294,7 @@
     }
 
     function saveTasks(tasks, listType = 'today') {
-      localStorage.setItem(STORAGE_KEYS[listType], JSON.stringify(tasks));
+      localStorage.setItem(storageKeyFor(listType), JSON.stringify(tasks));
     }
 
     function getDefaultTasks(listType = 'today') {
@@ -2273,7 +2320,18 @@
     }
 
     function initData() {
-      ['today', 'notes', 'mobile'].forEach(type => {
+      // 今日计划：首次按日期存储时，把旧版全局数据迁移到当天 key，避免历史内容丢失
+      const todayKey = planKeyFor(todayDateStr());
+      if (localStorage.getItem(todayKey) === null) {
+        const legacy = localStorage.getItem(STORAGE_KEYS.today);
+        if (legacy) {
+          localStorage.setItem(todayKey, legacy);          // 迁移已有计划到当天
+        } else {
+          saveTasks(getDefaultTasks('today'), 'today');     // 全新用户播种默认计划
+        }
+      }
+      // 机动 / 随手任务：仍为全局列表，空时播种默认项
+      ['notes', 'mobile'].forEach(type => {
         let tasks = loadTasks(type);
         if (!tasks.length) {
           tasks = getDefaultTasks(type);
@@ -2583,8 +2641,10 @@
     function renderTasks() {
       taskList.innerHTML = '';
       const tasks = filterTasks(loadTasks('today'), searchQuery);
-      if (tasks.length === 0 && searchQuery) {
-        taskList.innerHTML = '<div class="empty-tip">未找到相关任务</div>';
+      if (tasks.length === 0) {
+        taskList.innerHTML = searchQuery
+          ? '<div class="empty-tip">未找到相关任务</div>'
+          : '<div class="empty-tip">这一天还没有计划，点击下方按钮添加</div>';
       } else {
         tasks.forEach(task => taskList.appendChild(createTaskElement(task, 'today')));
       }
@@ -2629,6 +2689,18 @@
 
     initData();
     renderAllTaskLists();
+
+    // 日期选择器：默认当天、切换日期即加载对应日期的计划
+    if (planDate) {
+      planDate.value = currentPlanDate;
+      planDate.addEventListener('change', () => {
+        const picked = planDate.value;          // 形如 YYYY-MM-DD
+        if (!picked) return;
+        currentPlanDate = picked;
+        renderTasks();
+        updateStats();
+      });
+    }
 
     function containerType(id) {
       if (id === 'notesTaskList') return 'notes';
