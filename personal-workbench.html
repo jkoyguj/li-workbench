@@ -1779,6 +1779,201 @@
         min-height: auto;
       }
     }
+
+    /* 备忘录 */
+    .memo-section {
+      margin-top: var(--gap);
+      border-top: 1px solid var(--border);
+      padding-top: var(--gap);
+    }
+    .memo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .memo-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    .memo-tabs {
+      display: inline-flex;
+      gap: 3px;
+      padding: 3px;
+      background: #f0f0f0;
+      border-radius: var(--radius);
+    }
+    .memo-tab {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .memo-tab.active {
+      background: var(--card);
+      color: var(--text);
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    .memo-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .memo-form-row {
+      display: flex;
+      gap: 10px;
+    }
+    .memo-input,
+    .memo-select,
+    .memo-textarea {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+    }
+    .memo-select {
+      flex: 0 0 140px;
+      width: 140px;
+      cursor: pointer;
+    }
+    .memo-textarea {
+      resize: vertical;
+      min-height: 72px;
+    }
+    .memo-input:focus,
+    .memo-select:focus,
+    .memo-textarea:focus {
+      border-color: var(--primary);
+    }
+    .memo-form-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .memo-submit {
+      padding: 9px 22px;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+    .memo-submit:hover {
+      opacity: 0.85;
+    }
+    .memo-cancel {
+      padding: 9px 18px;
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .memo-cancel:hover {
+      background: #f5f5f5;
+    }
+    .memo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .memo-item {
+      padding: 12px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: background 0.15s ease;
+    }
+    .memo-item:hover {
+      background: #fafafa;
+    }
+    .memo-item-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .memo-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+    }
+    .memo-item-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .memo-item-actions button {
+      padding: 3px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text-secondary);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .memo-item-actions button:hover {
+      color: var(--text);
+      border-color: #ccc;
+    }
+    .memo-item-actions .memo-del:hover {
+      color: #ef4444;
+      border-color: #f0b4b4;
+    }
+    .memo-item-summary {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      word-break: break-all;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .memo-item-note {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #999;
+      word-break: break-all;
+    }
+    .memo-item-time {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #aaa;
+    }
+    .memo-empty {
+      padding: 24px 12px;
+      text-align: center;
+      font-size: 13px;
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
@@ -1863,6 +2058,35 @@
                 <button class="add-btn" id="addNotesTask">+ 添加随手任务</button>
               </div>
             </div>
+          </div>
+
+          <div class="memo-section">
+            <div class="memo-header">
+              <div class="memo-title">备忘录</div>
+              <div class="memo-tabs" id="memoTabs">
+                <button class="memo-tab active" data-memo-cat="账号密码" type="button">🔐 账号密码</button>
+                <button class="memo-tab" data-memo-cat="提示词" type="button">📝 提示词</button>
+              </div>
+            </div>
+
+            <form class="memo-form" id="memoForm" autocomplete="off">
+              <input type="hidden" id="memoId">
+              <div class="memo-form-row">
+                <input type="text" id="memoTitle" class="memo-input" placeholder="标题" maxlength="50">
+                <select id="memoCategory" class="memo-select">
+                  <option value="账号密码">账号密码</option>
+                  <option value="提示词">提示词</option>
+                </select>
+              </div>
+              <textarea id="memoContent" class="memo-textarea" placeholder="内容" rows="3"></textarea>
+              <input type="text" id="memoNote" class="memo-input" placeholder="备注（可选）" maxlength="100">
+              <div class="memo-form-actions">
+                <button type="submit" class="memo-submit" id="memoSubmit">保存</button>
+                <button type="button" class="memo-cancel" id="memoCancel" style="display:none">取消编辑</button>
+              </div>
+            </form>
+
+            <div class="memo-list" id="memoList"></div>
           </div>
         </section>
 
@@ -3923,6 +4147,168 @@
       loadData();
       initAccordion();
       renderAll();
+    })();
+
+    /* ================= 备忘录模块 ================= */
+    (function () {
+      const MEMO_KEY = 'memo_list';
+
+      const form = document.getElementById('memoForm');
+      const idInput = document.getElementById('memoId');
+      const titleInput = document.getElementById('memoTitle');
+      const categorySelect = document.getElementById('memoCategory');
+      const contentInput = document.getElementById('memoContent');
+      const noteInput = document.getElementById('memoNote');
+      const submitBtn = document.getElementById('memoSubmit');
+      const cancelBtn = document.getElementById('memoCancel');
+      const listEl = document.getElementById('memoList');
+      const tabsEl = document.getElementById('memoTabs');
+
+      let currentCategory = '账号密码';
+
+      function loadMemos() {
+        try {
+          const arr = JSON.parse(localStorage.getItem(MEMO_KEY) || '[]');
+          return Array.isArray(arr) ? arr : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveMemos(list) {
+        localStorage.setItem(MEMO_KEY, JSON.stringify(list));
+      }
+
+      function genId() {
+        return 'memo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      }
+
+      function formatTime(ts) {
+        try {
+          return new Date(ts).toLocaleString('zh-CN', { hour12: false });
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      function resetForm() {
+        idInput.value = '';
+        form.reset();
+        categorySelect.value = currentCategory;
+        submitBtn.textContent = '保存';
+        cancelBtn.style.display = 'none';
+      }
+
+      function render() {
+        const list = loadMemos()
+          .filter(function (m) { return m.category === currentCategory; })
+          .sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+
+        if (!list.length) {
+          listEl.innerHTML = '<div class="memo-empty">暂无该分类的记录</div>';
+          return;
+        }
+
+        listEl.innerHTML = list.map(function (m) {
+          const note = m.note ? '<div class="memo-item-note">备注：' + esc(m.note) + '</div>' : '';
+          return (
+            '<div class="memo-item" data-id="' + esc(m.id) + '">' +
+              '<div class="memo-item-head">' +
+                '<div class="memo-item-title">' + esc(m.title) + '</div>' +
+                '<div class="memo-item-actions">' +
+                  '<button type="button" data-action="edit">编辑</button>' +
+                  '<button type="button" data-action="del" class="memo-del">删除</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="memo-item-summary">' + esc(m.content) + '</div>' +
+              note +
+              '<div class="memo-item-time">' + formatTime(m.createdAt) + '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
+
+      function startEdit(id) {
+        const memo = loadMemos().find(function (m) { return m.id === id; });
+        if (!memo) return;
+        idInput.value = memo.id;
+        titleInput.value = memo.title;
+        categorySelect.value = memo.category;
+        contentInput.value = memo.content;
+        noteInput.value = memo.note || '';
+        submitBtn.textContent = '保存修改';
+        cancelBtn.style.display = '';
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        titleInput.focus();
+      }
+
+      function doDelete(id) {
+        if (!confirm('确定删除这条记录吗？')) return;
+        saveMemos(loadMemos().filter(function (m) { return m.id !== id; }));
+        render();
+      }
+
+      function setCategory(cat) {
+        currentCategory = cat;
+        tabsEl.querySelectorAll('.memo-tab').forEach(function (t) {
+          t.classList.toggle('active', t.dataset.memoCat === cat);
+        });
+        categorySelect.value = cat;
+        render();
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const id = idInput.value;
+        const title = titleInput.value.trim();
+        const category = categorySelect.value;
+        const content = contentInput.value.trim();
+        const note = noteInput.value.trim();
+
+        if (!title) { titleInput.focus(); return; }
+        if (!content) { contentInput.focus(); return; }
+
+        const list = loadMemos();
+        if (id) {
+          const idx = list.findIndex(function (m) { return m.id === id; });
+          if (idx !== -1) {
+            list[idx] = Object.assign({}, list[idx], { title: title, category: category, content: content, note: note });
+          }
+        } else {
+          list.push({ id: genId(), title: title, category: category, content: content, note: note, createdAt: Date.now() });
+        }
+        saveMemos(list);
+        resetForm();
+        // 若新增/修改时切换了分类，把标签也切过去，便于立刻看到记录
+        setCategory(category);
+      });
+
+      tabsEl.addEventListener('click', function (e) {
+        const tab = e.target.closest('.memo-tab');
+        if (!tab) return;
+        setCategory(tab.dataset.memoCat);
+      });
+
+      cancelBtn.addEventListener('click', resetForm);
+
+      listEl.addEventListener('click', function (e) {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const item = btn.closest('.memo-item');
+        if (!item) return;
+        if (btn.dataset.action === 'edit') startEdit(item.dataset.id);
+        else if (btn.dataset.action === 'del') doDelete(item.dataset.id);
+      });
+
+      // 初始化
+      categorySelect.value = currentCategory;
+      render();
     })();
   </script>
 </body>
