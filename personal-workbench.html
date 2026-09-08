@@ -1781,10 +1781,10 @@
     }
 
     /* 备忘录（与「今日计划」同级并列，独立区域） */
-    .content-section[data-section="memo"] {
-      margin-top: var(--gap);
-      padding-top: var(--gap);
+    .section-divider {
+      border: 0;
       border-top: 1px solid var(--border);
+      margin: var(--gap) 0;
     }
     .memo-panel {
       display: flex;
@@ -2054,6 +2054,7 @@
         </section>
 
         <section class="content-section" data-section="memo">
+          <hr class="section-divider">
           <div class="page-title">备忘录</div>
           <div class="memo-panel">
             <div class="memo-tabs" id="memoTabs">
