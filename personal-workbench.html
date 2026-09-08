@@ -2053,8 +2053,9 @@
           </div>
         </section>
 
+        <hr class="section-divider">
+
         <section class="content-section" data-section="memo">
-          <hr class="section-divider">
           <div class="page-title">备忘录</div>
           <div class="memo-panel">
             <div class="memo-tabs" id="memoTabs">
@@ -2450,6 +2451,11 @@
       const memoSection = document.querySelector('.content-section[data-section="memo"]');
       if (memoSection) {
         memoSection.classList.toggle('active', sectionKey === 'today');
+        // 同步隐藏/显示「今日计划」与「备忘录」之间的分割线
+        const divider = memoSection.previousElementSibling;
+        if (divider && divider.classList.contains('section-divider')) {
+          divider.style.display = sectionKey === 'today' ? '' : 'none';
+        }
       }
       const activeNav = document.querySelector(`.nav-item[data-section="${sectionKey}"]`);
       if (activeNav && mobileTitle) {
