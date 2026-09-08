@@ -2055,35 +2055,6 @@
 
         <hr class="section-divider">
 
-        <section class="content-section" data-section="memo">
-          <div class="page-title">备忘录</div>
-          <div class="memo-panel">
-            <div class="memo-tabs" id="memoTabs">
-              <button class="memo-tab active" data-memo-cat="账号密码" type="button">🔐 账号密码</button>
-              <button class="memo-tab" data-memo-cat="提示词" type="button">📝 提示词</button>
-            </div>
-
-            <form class="memo-form" id="memoForm" autocomplete="off">
-              <input type="hidden" id="memoId">
-              <div class="memo-form-row">
-                <input type="text" id="memoTitle" class="memo-input" placeholder="标题" maxlength="50">
-                <select id="memoCategory" class="memo-select">
-                  <option value="账号密码">账号密码</option>
-                  <option value="提示词">提示词</option>
-                </select>
-              </div>
-              <textarea id="memoContent" class="memo-textarea" placeholder="内容" rows="3"></textarea>
-              <input type="text" id="memoNote" class="memo-input" placeholder="备注（可选）" maxlength="100">
-              <div class="memo-form-actions">
-                <button type="submit" class="memo-submit" id="memoSubmit">保存</button>
-                <button type="button" class="memo-cancel" id="memoCancel" style="display:none">取消编辑</button>
-              </div>
-            </form>
-
-            <div class="memo-list" id="memoList"></div>
-          </div>
-        </section>
-
         <section class="content-section" data-section="inspiration">
           <div class="page-title">选题灵感</div>
           <div class="section-content">
@@ -4315,5 +4286,34 @@
       render();
     })();
   </script>
+
+        <section class="content-section" data-section="memo">
+          <div class="page-title">备忘录</div>
+          <div class="memo-panel">
+            <div class="memo-tabs" id="memoTabs">
+              <button class="memo-tab active" data-memo-cat="账号密码" type="button">🔐 账号密码</button>
+              <button class="memo-tab" data-memo-cat="提示词" type="button">📝 提示词</button>
+            </div>
+
+            <form class="memo-form" id="memoForm" autocomplete="off">
+              <input type="hidden" id="memoId">
+              <div class="memo-form-row">
+                <input type="text" id="memoTitle" class="memo-input" placeholder="标题" maxlength="50">
+                <select id="memoCategory" class="memo-select">
+                  <option value="账号密码">账号密码</option>
+                  <option value="提示词">提示词</option>
+                </select>
+              </div>
+              <textarea id="memoContent" class="memo-textarea" placeholder="内容" rows="3"></textarea>
+              <input type="text" id="memoNote" class="memo-input" placeholder="备注（可选）" maxlength="100">
+              <div class="memo-form-actions">
+                <button type="submit" class="memo-submit" id="memoSubmit">保存</button>
+                <button type="button" class="memo-cancel" id="memoCancel" style="display:none">取消编辑</button>
+              </div>
+            </form>
+
+            <div class="memo-list" id="memoList"></div>
+          </div>
+        </section>
 </body>
 </html>
