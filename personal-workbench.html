@@ -1780,27 +1780,20 @@
       }
     }
 
-    /* 备忘录 */
-    .memo-section {
+    /* 备忘录（与「今日计划」同级并列，独立区域） */
+    .content-section[data-section="memo"] {
       margin-top: var(--gap);
-      border-top: 1px solid var(--border);
       padding-top: var(--gap);
+      border-top: 1px solid var(--border);
     }
-    .memo-header {
+    .memo-panel {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-    .memo-title {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
+      flex-direction: column;
+      gap: 16px;
     }
     .memo-tabs {
       display: inline-flex;
+      align-self: flex-start;
       gap: 3px;
       padding: 3px;
       background: #f0f0f0;
@@ -1828,7 +1821,6 @@
       flex-direction: column;
       gap: 10px;
       padding: 16px;
-      margin-bottom: 16px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -2059,14 +2051,14 @@
               </div>
             </div>
           </div>
+        </section>
 
-          <div class="memo-section">
-            <div class="memo-header">
-              <div class="memo-title">备忘录</div>
-              <div class="memo-tabs" id="memoTabs">
-                <button class="memo-tab active" data-memo-cat="账号密码" type="button">🔐 账号密码</button>
-                <button class="memo-tab" data-memo-cat="提示词" type="button">📝 提示词</button>
-              </div>
+        <section class="content-section" data-section="memo">
+          <div class="page-title">备忘录</div>
+          <div class="memo-panel">
+            <div class="memo-tabs" id="memoTabs">
+              <button class="memo-tab active" data-memo-cat="账号密码" type="button">🔐 账号密码</button>
+              <button class="memo-tab" data-memo-cat="提示词" type="button">📝 提示词</button>
             </div>
 
             <form class="memo-form" id="memoForm" autocomplete="off">
@@ -2453,6 +2445,11 @@
       currentPage = sectionKey;
       navItems.forEach(i => i.classList.toggle('active', i.dataset.section === sectionKey));
       sections.forEach(s => s.classList.toggle('active', s.dataset.section === sectionKey));
+      // 备忘录与「今日计划」同级并列：仅在今日计划页下方同时展示
+      const memoSection = document.querySelector('.content-section[data-section="memo"]');
+      if (memoSection) {
+        memoSection.classList.toggle('active', sectionKey === 'today');
+      }
       const activeNav = document.querySelector(`.nav-item[data-section="${sectionKey}"]`);
       if (activeNav && mobileTitle) {
         if (sectionKey === 'accounting') {
