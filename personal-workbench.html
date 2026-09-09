@@ -1813,6 +1813,9 @@
   .memo-pw { font-family: monospace; letter-spacing: 1px; }
   .memo-item-time { margin-top: 10px; text-align: right; font-size: 11px; color: var(--text-3, #999); opacity: .8; }
   .memo-empty { text-align: center; color: var(--text-3, #999); padding: 40px 0; font-size: 13px; }
+  .memo-reset-area { margin-top: 32px; padding-top: 16px; border-top: 1px dashed var(--border); text-align: center; }
+  .memo-reset-btn { padding: 6px 14px; border: 1px solid var(--border); background: var(--card); color: var(--text-3, #999); border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .memo-reset-btn:hover { color: #e53935; border-color: #e53935; }
   /* 备忘录模态 */
   .memo-modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
   .memo-modal { width: 480px; max-width: 92vw; background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
@@ -2042,6 +2045,9 @@
             </div>
             <div class="memo-list" id="memoList"></div>
             <div class="memo-empty" id="memoEmpty">还没有备忘录，点「+ 新增」添加一条</div>
+            <div class="memo-reset-area">
+              <button class="memo-reset-btn" id="memoResetBtn" type="button">重置备忘录数据</button>
+            </div>
           </div>
         </section>
 
@@ -3987,7 +3993,8 @@
         empty: document.getElementById('memoEmpty'),
         search: document.getElementById('memoSearch'),
         addBtn: document.getElementById('memoAddBtn'),
-        tabs: document.querySelectorAll('.memo-tab')
+        tabs: document.querySelectorAll('.memo-tab'),
+        resetBtn: document.getElementById('memoResetBtn')
       };
 
       function load() {
@@ -4131,6 +4138,15 @@
       });
 
       els.addBtn.addEventListener('click', function () { openEditor(null, currentCat); });
+
+      // 重置备忘录数据：只清 memo_list，不影响今日计划/随手记
+      if (els.resetBtn) {
+        els.resetBtn.addEventListener('click', function () {
+          if (!confirm('确定要清除所有备忘录数据吗？')) return;
+          localStorage.removeItem(STORAGE_KEY);
+          location.reload();
+        });
+      }
 
       function openEditor(item, defaultCat) {
         var isEdit = !!item;
