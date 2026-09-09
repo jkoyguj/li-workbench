@@ -1803,10 +1803,10 @@
   .memo-field { margin-bottom: 8px; line-height: 1.7; }
   .memo-field-label { display: block; color: var(--text-3, #999); margin-bottom: 2px; }
   .memo-field-content {
-    white-space: nowrap;        /* 强制同行显示，不提前换行 */
-    overflow-wrap: break-word; /* 只有在容器边缘才换行 */
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
     max-width: 100%;
-    display: block;
   }
   .memo-pw-row { display: flex; align-items: center; gap: 8px; }
   .memo-pw { font-family: monospace; letter-spacing: 1px; }
