@@ -2028,6 +2028,7 @@
               <div class="memo-tabs">
                 <button class="memo-tab active" data-cat="password">账号密码</button>
                 <button class="memo-tab" data-cat="prompt">提示词</button>
+                <button class="memo-tab" data-cat="knowledge">📖 知识点</button>
               </div>
               <input class="memo-search" id="memoSearch" placeholder="搜索标题 / 内容 / 备注" />
               <button class="memo-add-btn" id="memoAddBtn">+ 新增</button>
@@ -3970,6 +3971,7 @@
       var STORAGE_KEY = 'memo_list';
       var CAT_PASSWORD = 'password';
       var CAT_PROMPT = 'prompt';
+      var CAT_KNOWLEDGE = 'knowledge';
       var currentCat = CAT_PASSWORD;
       var keyword = '';
 
@@ -4000,7 +4002,11 @@
           return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
         });
       }
-      function catName(c) { return c === CAT_PASSWORD ? '账号密码' : '提示词'; }
+      function catName(c) {
+        if (c === CAT_PASSWORD) return '账号密码';
+        if (c === CAT_PROMPT) return '提示词';
+        return '知识点';
+      }
 
       function render() {
         var items = load();
@@ -4037,6 +4043,7 @@
           var copyPw = mkBtn('复制密码', 'memo-btn', function () { copyText(it.content || ''); });
           actions.appendChild(copyPw);
         } else {
+          // 提示词 / 知识点都用「复制内容」
           var copyC = mkBtn('复制内容', 'memo-btn', function () { copyText(it.content || ''); });
           actions.appendChild(copyC);
         }
@@ -4066,6 +4073,7 @@
           html += '<div class="memo-field"><span class="memo-field-label">账号:</span>' + escapeHtml(it.title) + '</div>';
           html += '<div class="memo-field"><span class="memo-field-label">密码:</span><span class="memo-pw">' + escapeHtml(it.content) + '</span></div>';
         } else {
+          // 提示词 / 知识点都用「内容」字段展示
           html += '<div class="memo-field"><span class="memo-field-label">内容:</span>' + escapeHtml(it.content) + '</div>';
         }
         if (it.note) {
@@ -4120,19 +4128,24 @@
       function openEditor(item, defaultCat) {
         var isEdit = !!item;
         // 默认分类：编辑用记录原分类，新增用传入的当前标签分类
-        var initCat = isEdit ? item.cat : (defaultCat === CAT_PROMPT ? CAT_PROMPT : CAT_PASSWORD);
+        var initCat = isEdit ? item.cat : (defaultCat || CAT_PASSWORD);
         var mask = document.createElement('div');
         mask.className = 'memo-modal-mask';
         var modal = document.createElement('div');
         modal.className = 'memo-modal';
+        // 非「账号密码」分类（提示词 / 知识点）使用通用文案
+        var isPwd = initCat === CAT_PASSWORD;
+        var titleHint = isPwd ? '账号' : (initCat === CAT_PROMPT ? '提示词名称' : '知识点标题');
+        var contentHint = isPwd ? '密码' : (initCat === CAT_PROMPT ? '提示词正文' : '知识点内容');
         modal.innerHTML =
           '<h3>' + (isEdit ? '编辑备忘录' : '新增备忘录') + '</h3>' +
           '<div class="memo-form-group"><label class="memo-form-label">分类</label><select class="memo-form-input" id="memoFormCat">' +
             '<option value="' + CAT_PASSWORD + '"' + (initCat === CAT_PASSWORD ? ' selected' : '') + '>账号密码</option>' +
             '<option value="' + CAT_PROMPT + '"' + (initCat === CAT_PROMPT ? ' selected' : '') + '>提示词</option>' +
+            '<option value="' + CAT_KNOWLEDGE + '"' + (initCat === CAT_KNOWLEDGE ? ' selected' : '') + '>知识点</option>' +
           '</select></div>' +
-          '<div class="memo-form-group"><label class="memo-form-label">标题</label><input class="memo-form-input" id="memoFormTitle" placeholder="' + (initCat === CAT_PROMPT ? '提示词名称' : '账号') + '" value="' + escapeHtml(item ? item.title : '') + '" /></div>' +
-          '<div class="memo-form-group"><label class="memo-form-label">内容</label><textarea class="memo-form-textarea" id="memoFormContent" placeholder="' + (initCat === CAT_PROMPT ? '提示词正文' : '密码') + '">' + escapeHtml(item ? item.content : '') + '</textarea></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">标题</label><input class="memo-form-input" id="memoFormTitle" placeholder="' + titleHint + '" value="' + escapeHtml(item ? item.title : '') + '" /></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">内容</label><textarea class="memo-form-textarea" id="memoFormContent" placeholder="' + contentHint + '">' + escapeHtml(item ? item.content : '') + '</textarea></div>' +
           '<div class="memo-form-group"><label class="memo-form-label">备注</label><textarea class="memo-form-textarea" id="memoFormNote" placeholder="可选备注">' + escapeHtml(item ? item.note : '') + '</textarea></div>' +
           '<div class="memo-form-actions"><button class="memo-btn" id="memoFormCancel">取消</button><button class="memo-add-btn" id="memoFormSave">保存</button></div>';
         mask.appendChild(modal);
@@ -4140,8 +4153,9 @@
         var catSel = document.getElementById('memoFormCat');
         var titleInput = document.getElementById('memoFormTitle');
         catSel.addEventListener('change', function () {
-          titleInput.placeholder = catSel.value === CAT_PROMPT ? '提示词名称' : '账号';
-          document.getElementById('memoFormContent').placeholder = catSel.value === CAT_PROMPT ? '提示词正文' : '密码';
+          var v = catSel.value;
+          titleInput.placeholder = v === CAT_PASSWORD ? '账号' : (v === CAT_PROMPT ? '提示词名称' : '知识点标题');
+          document.getElementById('memoFormContent').placeholder = v === CAT_PASSWORD ? '密码' : (v === CAT_PROMPT ? '提示词正文' : '知识点内容');
         });
         document.getElementById('memoFormCancel').addEventListener('click', function () { document.body.removeChild(mask); });
         document.getElementById('memoFormSave').addEventListener('click', function () {
