@@ -1800,8 +1800,9 @@
   .memo-btn.danger:hover { color: #e53935; border-color: #e53935; }
   .memo-item-body { display: none; padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--border); font-size: 13px; color: var(--text-2); line-height: 1.7; }
   .memo-item.expanded .memo-item-body { display: block; }
-  .memo-field { margin-bottom: 6px; white-space: pre-wrap; word-break: normal; overflow-wrap: anywhere; }
-  .memo-field-label { color: var(--text-3, #999); margin-right: 6px; }
+  .memo-field { margin-bottom: 8px; line-height: 1.7; }
+  .memo-field-label { display: block; color: var(--text-3, #999); margin-bottom: 2px; }
+  .memo-field-content { display: block; white-space: normal; word-break: normal; overflow-wrap: anywhere; }
   .memo-pw-row { display: flex; align-items: center; gap: 8px; }
   .memo-pw { font-family: monospace; letter-spacing: 1px; }
   .memo-item-time { margin-top: 10px; text-align: right; font-size: 11px; color: var(--text-3, #999); opacity: .8; }
@@ -4068,16 +4069,16 @@
 
       function renderBody(it) {
         var html = '';
-        html += '<div class="memo-field"><span class="memo-field-label">分类:</span>' + escapeHtml(catName(it.cat)) + '</div>';
+        html += '<div class="memo-field"><span class="memo-field-label">分类</span><span class="memo-field-content">' + escapeHtml(catName(it.cat)) + '</span></div>';
         if (it.cat === CAT_PASSWORD) {
-          html += '<div class="memo-field"><span class="memo-field-label">账号:</span>' + escapeHtml(it.title) + '</div>';
-          html += '<div class="memo-field"><span class="memo-field-label">密码:</span><span class="memo-pw">' + escapeHtml(it.content) + '</span></div>';
+          html += '<div class="memo-field"><span class="memo-field-label">账号</span><span class="memo-field-content">' + escapeHtml(it.title) + '</span></div>';
+          html += '<div class="memo-field"><span class="memo-field-label">密码</span><span class="memo-field-content memo-pw">' + escapeHtml(it.content) + '</span></div>';
         } else {
           // 提示词 / 知识点都用「内容」字段展示
-          html += '<div class="memo-field"><span class="memo-field-label">内容:</span>' + escapeHtml(it.content) + '</div>';
+          html += '<div class="memo-field"><span class="memo-field-label">内容</span><span class="memo-field-content">' + escapeHtml(it.content) + '</span></div>';
         }
         if (it.note) {
-          html += '<div class="memo-field"><span class="memo-field-label">备注:</span>' + escapeHtml(it.note) + '</div>';
+          html += '<div class="memo-field"><span class="memo-field-label">备注</span><span class="memo-field-content">' + escapeHtml(it.note) + '</span></div>';
         }
         return html;
       }
