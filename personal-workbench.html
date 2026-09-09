@@ -4112,10 +4112,12 @@
         render();
       });
 
-      els.addBtn.addEventListener('click', function () { openEditor(null); });
+      els.addBtn.addEventListener('click', function () { openEditor(null, currentCat); });
 
-      function openEditor(item) {
+      function openEditor(item, defaultCat) {
         var isEdit = !!item;
+        // 默认分类：编辑用记录原分类，新增用传入的当前标签分类
+        var initCat = isEdit ? item.cat : (defaultCat === CAT_PROMPT ? CAT_PROMPT : CAT_PASSWORD);
         var mask = document.createElement('div');
         mask.className = 'memo-modal-mask';
         var modal = document.createElement('div');
@@ -4123,11 +4125,11 @@
         modal.innerHTML =
           '<h3>' + (isEdit ? '编辑备忘录' : '新增备忘录') + '</h3>' +
           '<div class="memo-form-group"><label class="memo-form-label">分类</label><select class="memo-form-input" id="memoFormCat">' +
-            '<option value="' + CAT_PASSWORD + '"' + (item && item.cat === CAT_PASSWORD ? ' selected' : '') + '>账号密码</option>' +
-            '<option value="' + CAT_PROMPT + '"' + (item && item.cat === CAT_PROMPT ? ' selected' : '') + '>提示词</option>' +
+            '<option value="' + CAT_PASSWORD + '"' + (initCat === CAT_PASSWORD ? ' selected' : '') + '>账号密码</option>' +
+            '<option value="' + CAT_PROMPT + '"' + (initCat === CAT_PROMPT ? ' selected' : '') + '>提示词</option>' +
           '</select></div>' +
-          '<div class="memo-form-group"><label class="memo-form-label">标题</label><input class="memo-form-input" id="memoFormTitle" placeholder="' + (item && item.cat === CAT_PROMPT ? '提示词名称' : '账号') + '" value="' + escapeHtml(item ? item.title : '') + '" /></div>' +
-          '<div class="memo-form-group"><label class="memo-form-label">内容</label><textarea class="memo-form-textarea" id="memoFormContent" placeholder="' + (item && item.cat === CAT_PROMPT ? '提示词正文' : '密码') + '">' + escapeHtml(item ? item.content : '') + '</textarea></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">标题</label><input class="memo-form-input" id="memoFormTitle" placeholder="' + (initCat === CAT_PROMPT ? '提示词名称' : '账号') + '" value="' + escapeHtml(item ? item.title : '') + '" /></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">内容</label><textarea class="memo-form-textarea" id="memoFormContent" placeholder="' + (initCat === CAT_PROMPT ? '提示词正文' : '密码') + '">' + escapeHtml(item ? item.content : '') + '</textarea></div>' +
           '<div class="memo-form-group"><label class="memo-form-label">备注</label><textarea class="memo-form-textarea" id="memoFormNote" placeholder="可选备注">' + escapeHtml(item ? item.note : '') + '</textarea></div>' +
           '<div class="memo-form-actions"><button class="memo-btn" id="memoFormCancel">取消</button><button class="memo-add-btn" id="memoFormSave">保存</button></div>';
         mask.appendChild(modal);
