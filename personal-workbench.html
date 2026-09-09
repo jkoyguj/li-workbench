@@ -2298,45 +2298,29 @@
     }
 
     function getDefaultTasks(listType = 'today') {
-      if (listType === 'notes') {
-        return [
-          { id: 'n1', text: '买咖啡豆', done: false, review: '' },
-          { id: 'n2', text: '预约牙医', done: false, review: '' },
-        ];
-      }
-      if (listType === 'mobile') {
-        return [
-          { id: 'm1', text: '回复邮件', done: false, review: '', tag: '待处理', desc: '3 封工作邮件待确认，优先客户反馈。' },
-          { id: 'm2', text: '整理灵感碎片', done: false, review: '', tag: '进行中', desc: '把本周随手记的想法分类归档。' },
-          { id: 'm3', text: '清理桌面', done: false, review: '', tag: '低优先级', desc: '整理文件和书架，保持专注环境。' },
-        ];
-      }
-      return [
-        { id: '1', text: '晨间阅读 30 分钟', done: false, review: '' },
-        { id: '2', text: '整理本周工作重点', done: false, review: '' },
-        { id: '3', text: '跟进产品设计稿评审', done: false, review: '' },
-        { id: '4', text: '运动 / 散步 45 分钟', done: false, review: '' },
-      ];
+      // 已禁用默认示例任务：所有类型初始返回空数组，等待用户自行添加
+      return [];
     }
 
     function initData() {
-      // 今日计划：首次按日期存储时，把旧版全局数据迁移到当天 key，避免历史内容丢失
+      // 一次性强制重置：清掉浏览器里之前播种的旧示例任务数据，让今日计划三个区域回到空白初始状态
+      // 用 flag 控制，只执行一次，避免每次刷新都清空用户新增的数据
+      if (!localStorage.getItem('li-workbench-reset-v1')) {
+        Object.keys(localStorage)
+          .filter(k => /^plan_\d{4}-\d{2}-\d{2}$/.test(k) || k === 'li-workbench-tasks')
+          .forEach(k => localStorage.removeItem(k));
+        localStorage.removeItem('li-workbench-tasks-mobile');
+        localStorage.removeItem('li-workbench-tasks-notes');
+        localStorage.setItem('li-workbench-reset-v1', '1');
+      }
+      // 今日计划：当天 key 不存在时初始化为空数组，不塞任何示例任务
       const todayKey = planKeyFor(todayDateStr());
       if (localStorage.getItem(todayKey) === null) {
-        const legacy = localStorage.getItem(STORAGE_KEYS.today);
-        if (legacy) {
-          localStorage.setItem(todayKey, legacy);          // 迁移已有计划到当天
-        } else {
-          saveTasks(getDefaultTasks('today'), 'today');     // 全新用户播种默认计划
-        }
+        saveTasks([], 'today');
       }
-      // 机动 / 随手任务：仍为全局列表，空时播种默认项
+      // 机动 / 随手任务：空时初始化为空数组
       ['notes', 'mobile'].forEach(type => {
-        let tasks = loadTasks(type);
-        if (!tasks.length) {
-          tasks = getDefaultTasks(type);
-          saveTasks(tasks, type);
-        }
+        if (!loadTasks(type).length) saveTasks([], type);
       });
     }
 
