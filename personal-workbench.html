@@ -3988,6 +3988,15 @@
       var currentCat = CAT_PASSWORD;
       var keyword = '';
 
+      // 页面加载时强制执行一次备忘录数据重置（只执行一次）
+      // 1. 检测到 memo_list 里如果存在任何记录，直接覆盖为空数组 []
+      // 2. 下次新增记录时使用最新存储格式（id、title、category、content、note、createdAt）
+      // 3. 执行完后在 localStorage 里写一个标记 memo_reset_done: true，以后不再重复执行
+      if (!localStorage.getItem('memo_reset_done')) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+        localStorage.setItem('memo_reset_done', 'true');
+      }
+
       var els = {
         list: document.getElementById('memoList'),
         empty: document.getElementById('memoEmpty'),
@@ -4025,7 +4034,7 @@
       function render() {
         var items = load();
         var filtered = items
-          .filter(function (it) { return it.cat === currentCat; })
+          .filter(function (it) { return (it.category || it.cat) === currentCat; })
           .filter(function (it) {
             if (!keyword) return true;
             var kw = keyword.toLowerCase();
@@ -4053,7 +4062,7 @@
         title.textContent = it.title || '(未命名)';
         var actions = document.createElement('div');
         actions.className = 'memo-item-actions';
-        if (it.cat === CAT_PASSWORD) {
+        if (it.category === CAT_PASSWORD || it.cat === CAT_PASSWORD) {
           var copyPw = mkBtn('复制密码', 'memo-btn', function () { copyText(it.content || ''); });
           actions.appendChild(copyPw);
         } else {
@@ -4072,7 +4081,7 @@
 
         var time = document.createElement('div');
         time.className = 'memo-item-time';
-        time.textContent = fmtTime(it.ts);
+        time.textContent = fmtTime(it.createdAt || it.ts);
 
         card.appendChild(head);
         card.appendChild(body);
@@ -4081,9 +4090,10 @@
       }
 
       function renderBody(it) {
+        var c = it.category || it.cat;
         var html = '';
-        html += '<div class="memo-field"><span class="memo-field-label">分类</span><span class="memo-field-content">' + escapeHtml(catName(it.cat)) + '</span></div>';
-        if (it.cat === CAT_PASSWORD) {
+        html += '<div class="memo-field"><span class="memo-field-label">分类</span><span class="memo-field-content">' + escapeHtml(catName(c)) + '</span></div>';
+        if (c === CAT_PASSWORD) {
           html += '<div class="memo-field"><span class="memo-field-label">账号</span><span class="memo-field-content">' + escapeHtml(it.title) + '</span></div>';
           html += '<div class="memo-field"><span class="memo-field-label">密码</span><span class="memo-field-content memo-pw">' + escapeHtml(it.content) + '</span></div>';
         } else {
@@ -4151,7 +4161,7 @@
       function openEditor(item, defaultCat) {
         var isEdit = !!item;
         // 默认分类：编辑用记录原分类，新增用传入的当前标签分类
-        var initCat = isEdit ? item.cat : (defaultCat || CAT_PASSWORD);
+        var initCat = isEdit ? (item.category || item.cat) : (defaultCat || CAT_PASSWORD);
         var mask = document.createElement('div');
         mask.className = 'memo-modal-mask';
         var modal = document.createElement('div');
@@ -4191,10 +4201,10 @@
           if (isEdit) {
             var idx = items.findIndex(function (x) { return x.id === item.id; });
             if (idx > -1) {
-              items[idx] = { id: item.id, cat: cat, title: title, content: content, note: note, ts: Date.now() };
+              items[idx] = { id: item.id, title: title, category: cat, content: content, note: note, createdAt: Date.now() };
             }
           } else {
-            items.push({ id: genId(), cat: cat, title: title, content: content, note: note, ts: Date.now() });
+            items.push({ id: genId(), title: title, category: cat, content: content, note: note, createdAt: Date.now() });
           }
           save(items);
           document.body.removeChild(mask);
