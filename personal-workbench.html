@@ -3791,7 +3791,10 @@
 
       function renderRecordCategories() {
         const list = state.currentType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-        state.currentCategory = list[0];
+        // 只在切换收支类型或初始进入时重置为首个分类，避免覆盖用户已选的分类
+        if (!state.currentCategory || list.indexOf(state.currentCategory) === -1) {
+          state.currentCategory = list[0];
+        }
         if (!recordCategoryGrid) return;
         recordCategoryGrid.innerHTML = '';
         list.forEach(function (c) {
