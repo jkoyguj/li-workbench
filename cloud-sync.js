@@ -27,7 +27,8 @@
     'quick-note-v2',
     'pomodoro-data',
     'accounting-v2',
-    'li-workbench-nav-order'
+    'li-workbench-nav-order',
+    'memo_list'
   ];
 
   var CONFIG_KEY = 'cloud-sync-config';

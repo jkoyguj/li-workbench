@@ -1779,6 +1779,42 @@
         min-height: auto;
       }
     }
+  /* ===== 备忘录模块 ===== */
+  .memo-page { padding: 20px; max-width: 960px; margin: 0 auto; }
+  .memo-toolbar { display: flex; align-items: center; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+  .memo-tabs { display: flex; gap: 6px; }
+  .memo-tab { padding: 6px 14px; border: 1px solid var(--border); background: var(--card); color: var(--text-2); border-radius: 8px; cursor: pointer; font-size: 13px; transition: all .15s; }
+  .memo-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .memo-search { flex: 1; min-width: 160px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text-1); font-size: 13px; }
+  .memo-add-btn { padding: 8px 16px; background: var(--primary); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; }
+  .memo-add-btn:hover { opacity: .9; }
+  .memo-list { display: flex; flex-direction: column; gap: 12px; }
+  .memo-item { border: 1px solid var(--border); border-radius: 10px; background: var(--card); padding: 14px 16px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+  .memo-item:hover { border-color: var(--primary); }
+  .memo-item.expanded { border-color: var(--primary); }
+  .memo-item-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .memo-item-title { font-weight: 600; font-size: 14px; color: var(--text-1); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .memo-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .memo-btn { padding: 4px 10px; border: 1px solid var(--border); background: var(--card); color: var(--text-2); border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .memo-btn:hover { background: var(--bg-2, #f5f5f5); }
+  .memo-btn.danger:hover { color: #e53935; border-color: #e53935; }
+  .memo-item-body { display: none; padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--border); font-size: 13px; color: var(--text-2); line-height: 1.7; }
+  .memo-item.expanded .memo-item-body { display: block; }
+  .memo-field { margin-bottom: 6px; }
+  .memo-field-label { color: var(--text-3, #999); margin-right: 6px; }
+  .memo-pw-row { display: flex; align-items: center; gap: 8px; }
+  .memo-pw { font-family: monospace; letter-spacing: 1px; }
+  .memo-item-time { margin-top: 10px; text-align: right; font-size: 11px; color: var(--text-3, #999); opacity: .8; }
+  .memo-empty { text-align: center; color: var(--text-3, #999); padding: 40px 0; font-size: 13px; }
+  /* 备忘录模态 */
+  .memo-modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+  .memo-modal { width: 480px; max-width: 92vw; background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+  .memo-modal h3 { margin: 0 0 16px; font-size: 16px; color: var(--text-1); }
+  .memo-form-group { margin-bottom: 12px; }
+  .memo-form-label { display: block; margin-bottom: 4px; font-size: 12px; color: var(--text-2); }
+  .memo-form-input, .memo-form-textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg, #fff); color: var(--text-1); font-size: 13px; box-sizing: border-box; font-family: inherit; }
+  .memo-form-textarea { min-height: 80px; resize: vertical; }
+  .memo-form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
   </style>
 </head>
 <body>
@@ -1812,6 +1848,10 @@
         <li class="nav-item" data-section="notes">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
           <span>随手记</span>
+        </li>
+        <li class="nav-item" data-section="memo">
+          <svg class="nav-icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg>
+          <span>备忘录</span>
         </li>
         <li class="nav-item" data-section="pomodoro">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
@@ -1978,6 +2018,22 @@
               <button id="markDoneBtn">标记完成</button>
             </div>
             <div class="notes-editor" id="notesEditor" contenteditable="true" spellcheck="false"></div>
+          </div>
+        </section>
+
+        <section class="content-section memo-section" data-section="memo">
+          <div class="memo-page">
+            <div class="page-title">备忘录</div>
+            <div class="memo-toolbar">
+              <div class="memo-tabs">
+                <button class="memo-tab active" data-cat="password">账号密码</button>
+                <button class="memo-tab" data-cat="prompt">提示词</button>
+              </div>
+              <input class="memo-search" id="memoSearch" placeholder="搜索标题 / 内容 / 备注" />
+              <button class="memo-add-btn" id="memoAddBtn">+ 新增</button>
+            </div>
+            <div class="memo-list" id="memoList"></div>
+            <div class="memo-empty" id="memoEmpty">还没有备忘录，点「+ 新增」添加一条</div>
           </div>
         </section>
 
@@ -2222,7 +2278,7 @@
     menuBtn.addEventListener('click', () => toggleMenu(true));
     overlay.addEventListener('click', () => toggleMenu(false));
 
-    const DEFAULT_NAV_ORDER = ['notes', 'today', 'pomodoro', 'accounting', 'review', 'inspiration', 'library'];
+    const DEFAULT_NAV_ORDER = ['notes', 'today', 'pomodoro', 'accounting', 'review', 'inspiration', 'library', 'memo'];
     let currentPage = null;
 
     function switchSection(sectionKey) {
@@ -2231,12 +2287,9 @@
       sections.forEach(s => s.classList.toggle('active', s.dataset.section === sectionKey));
       const activeNav = document.querySelector(`.nav-item[data-section="${sectionKey}"]`);
       if (activeNav && mobileTitle) {
-        if (sectionKey === 'accounting') {
-          mobileTitle.style.display = 'none';
-        } else {
-          mobileTitle.style.display = '';
-          mobileTitle.textContent = activeNav.querySelector('span').textContent;
-        }
+        // 顶栏不再显示模块名（含「备忘录」等），只保留「三」菜单图标
+        mobileTitle.style.display = 'none';
+        mobileTitle.textContent = '';
       }
       if (sectionKey === 'review') updateStats();
       if (sectionKey === 'pomodoro' && typeof window.loadPomodoroTasks === 'function') window.loadPomodoroTasks();
@@ -3907,6 +3960,218 @@
       loadData();
       initAccordion();
       renderAll();
+    })();
+
+    /* ===== 备忘录模块 (独立 IIFE，不依赖其它模块) ===== */
+    (function memoModule() {
+      var STORAGE_KEY = 'memo_list';
+      var CAT_PASSWORD = 'password';
+      var CAT_PROMPT = 'prompt';
+      var currentCat = CAT_PASSWORD;
+      var keyword = '';
+
+      var els = {
+        list: document.getElementById('memoList'),
+        empty: document.getElementById('memoEmpty'),
+        search: document.getElementById('memoSearch'),
+        addBtn: document.getElementById('memoAddBtn'),
+        tabs: document.querySelectorAll('.memo-tab')
+      };
+
+      function load() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        catch (e) { return []; }
+      }
+      function save(items) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items || []));
+      }
+      function genId() { return 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+      function fmtTime(ts) {
+        if (!ts) return '';
+        var d = new Date(ts);
+        function p(n) { return (n < 10 ? '0' : '') + n; }
+        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+      }
+      function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function catName(c) { return c === CAT_PASSWORD ? '账号密码' : '提示词'; }
+
+      function render() {
+        var items = load();
+        var filtered = items
+          .filter(function (it) { return it.cat === currentCat; })
+          .filter(function (it) {
+            if (!keyword) return true;
+            var kw = keyword.toLowerCase();
+            return (it.title || '').toLowerCase().indexOf(kw) > -1
+              || (it.content || '').toLowerCase().indexOf(kw) > -1
+              || (it.note || '').toLowerCase().indexOf(kw) > -1;
+          });
+        els.list.innerHTML = '';
+        if (!filtered.length) {
+          els.empty.style.display = 'block';
+          return;
+        }
+        els.empty.style.display = 'none';
+        filtered.forEach(function (it) { els.list.appendChild(buildItem(it)); });
+      }
+
+      function buildItem(it) {
+        var card = document.createElement('div');
+        card.className = 'memo-item';
+        card.dataset.id = it.id;
+        var head = document.createElement('div');
+        head.className = 'memo-item-head';
+        var title = document.createElement('div');
+        title.className = 'memo-item-title';
+        title.textContent = it.title || '(未命名)';
+        var actions = document.createElement('div');
+        actions.className = 'memo-item-actions';
+        if (it.cat === CAT_PASSWORD) {
+          var copyPw = mkBtn('复制密码', 'memo-btn', function () { copyText(it.content || ''); });
+          actions.appendChild(copyPw);
+        } else {
+          var copyC = mkBtn('复制内容', 'memo-btn', function () { copyText(it.content || ''); });
+          actions.appendChild(copyC);
+        }
+        actions.appendChild(mkBtn('编辑', 'memo-btn', function () { openEditor(it); }));
+        actions.appendChild(mkBtn('删除', 'memo-btn danger', function () { delItem(it.id); }));
+        head.appendChild(title);
+        head.appendChild(actions);
+
+        var body = document.createElement('div');
+        body.className = 'memo-item-body';
+        body.innerHTML = renderBody(it);
+
+        var time = document.createElement('div');
+        time.className = 'memo-item-time';
+        time.textContent = fmtTime(it.ts);
+
+        card.appendChild(head);
+        card.appendChild(body);
+        card.appendChild(time);
+        return card;
+      }
+
+      function renderBody(it) {
+        var html = '';
+        html += '<div class="memo-field"><span class="memo-field-label">分类:</span>' + escapeHtml(catName(it.cat)) + '</div>';
+        if (it.cat === CAT_PASSWORD) {
+          html += '<div class="memo-field"><span class="memo-field-label">账号:</span>' + escapeHtml(it.title) + '</div>';
+          html += '<div class="memo-field"><span class="memo-field-label">密码:</span><span class="memo-pw">' + escapeHtml(it.content) + '</span></div>';
+        } else {
+          html += '<div class="memo-field"><span class="memo-field-label">内容:</span>' + escapeHtml(it.content) + '</div>';
+        }
+        if (it.note) {
+          html += '<div class="memo-field"><span class="memo-field-label">备注:</span>' + escapeHtml(it.note) + '</div>';
+        }
+        return html;
+      }
+
+      function mkBtn(text, cls, handler) {
+        var b = document.createElement('button');
+        b.className = cls;
+        b.textContent = text;
+        b.addEventListener('click', function (e) { e.stopPropagation(); handler(); });
+        return b;
+      }
+
+      function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+      }
+
+      els.list.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (btn) return;
+        var card = e.target.closest('.memo-item');
+        if (!card) return;
+        card.classList.toggle('expanded');
+      });
+
+      els.tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          els.tabs.forEach(function (t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentCat = tab.dataset.cat;
+          render();
+        });
+      });
+
+      els.search.addEventListener('input', function () {
+        keyword = els.search.value.trim();
+        render();
+      });
+
+      els.addBtn.addEventListener('click', function () { openEditor(null); });
+
+      function openEditor(item) {
+        var isEdit = !!item;
+        var mask = document.createElement('div');
+        mask.className = 'memo-modal-mask';
+        var modal = document.createElement('div');
+        modal.className = 'memo-modal';
+        modal.innerHTML =
+          '<h3>' + (isEdit ? '编辑备忘录' : '新增备忘录') + '</h3>' +
+          '<div class="memo-form-group"><label class="memo-form-label">分类</label><select class="memo-form-input" id="memoFormCat">' +
+            '<option value="' + CAT_PASSWORD + '"' + (item && item.cat === CAT_PASSWORD ? ' selected' : '') + '>账号密码</option>' +
+            '<option value="' + CAT_PROMPT + '"' + (item && item.cat === CAT_PROMPT ? ' selected' : '') + '>提示词</option>' +
+          '</select></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">标题</label><input class="memo-form-input" id="memoFormTitle" placeholder="' + (item && item.cat === CAT_PROMPT ? '提示词名称' : '账号') + '" value="' + escapeHtml(item ? item.title : '') + '" /></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">内容</label><textarea class="memo-form-textarea" id="memoFormContent" placeholder="' + (item && item.cat === CAT_PROMPT ? '提示词正文' : '密码') + '">' + escapeHtml(item ? item.content : '') + '</textarea></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">备注</label><textarea class="memo-form-textarea" id="memoFormNote" placeholder="可选备注">' + escapeHtml(item ? item.note : '') + '</textarea></div>' +
+          '<div class="memo-form-actions"><button class="memo-btn" id="memoFormCancel">取消</button><button class="memo-add-btn" id="memoFormSave">保存</button></div>';
+        mask.appendChild(modal);
+        document.body.appendChild(mask);
+        var catSel = document.getElementById('memoFormCat');
+        var titleInput = document.getElementById('memoFormTitle');
+        catSel.addEventListener('change', function () {
+          titleInput.placeholder = catSel.value === CAT_PROMPT ? '提示词名称' : '账号';
+          document.getElementById('memoFormContent').placeholder = catSel.value === CAT_PROMPT ? '提示词正文' : '密码';
+        });
+        document.getElementById('memoFormCancel').addEventListener('click', function () { document.body.removeChild(mask); });
+        document.getElementById('memoFormSave').addEventListener('click', function () {
+          var cat = catSel.value;
+          var title = titleInput.value.trim();
+          var content = document.getElementById('memoFormContent').value.trim();
+          var note = document.getElementById('memoFormNote').value.trim();
+          if (!title) { titleInput.focus(); return; }
+          var items = load();
+          if (isEdit) {
+            var idx = items.findIndex(function (x) { return x.id === item.id; });
+            if (idx > -1) {
+              items[idx] = { id: item.id, cat: cat, title: title, content: content, note: note, ts: Date.now() };
+            }
+          } else {
+            items.push({ id: genId(), cat: cat, title: title, content: content, note: note, ts: Date.now() });
+          }
+          save(items);
+          document.body.removeChild(mask);
+          render();
+        });
+      }
+
+      function delItem(id) {
+        if (!confirm('确定删除这条备忘录？')) return;
+        var items = load().filter(function (x) { return x.id !== id; });
+        save(items);
+        render();
+      }
+
+      render();
+      // 监听云同步 apply 后刷新备忘录列表
+      window.addEventListener('storage', function (e) {
+        if (e.key === STORAGE_KEY) render();
+      });
     })();
   </script>
 </body>
