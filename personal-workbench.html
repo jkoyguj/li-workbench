@@ -1779,6 +1779,52 @@
         min-height: auto;
       }
     }
+  /* ===== 备忘录模块 ===== */
+  .memo-page { padding: 20px; max-width: 960px; margin: 0 auto; }
+  .memo-toolbar { display: flex; align-items: center; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+  .memo-tabs { display: flex; gap: 6px; }
+  .memo-tab { padding: 6px 14px; border: 1px solid var(--border); background: var(--card); color: var(--text-2); border-radius: 8px; cursor: pointer; font-size: 13px; transition: all .15s; }
+  .memo-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .memo-search { flex: 1; min-width: 160px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text-1); font-size: 13px; }
+  .memo-add-btn { padding: 8px 16px; background: var(--primary); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; }
+  .memo-add-btn:hover { opacity: .9; }
+  .memo-list { display: flex; flex-direction: column; gap: 12px; }
+  .memo-item { border: 1px solid var(--border); border-radius: 10px; background: var(--card); padding: 14px 16px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+  .memo-item:hover { border-color: var(--primary); }
+  .memo-item.expanded { border-color: var(--primary); }
+  .memo-item-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .memo-item-title { font-weight: 600; font-size: 14px; color: var(--text-1); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .memo-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .memo-btn { padding: 4px 10px; border: 1px solid var(--border); background: var(--card); color: var(--text-2); border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .memo-btn:hover { background: var(--bg-2, #f5f5f5); }
+  .memo-btn.danger:hover { color: #e53935; border-color: #e53935; }
+  .memo-item-body { display: none; padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--border); font-size: 13px; color: var(--text-2); line-height: 1.7; }
+  .memo-item.expanded .memo-item-body { display: block; }
+  .memo-field { margin-bottom: 8px; line-height: 1.7; }
+  .memo-field-label { display: block; color: var(--text-3, #999); margin-bottom: 2px; }
+  .memo-field-content {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    overflow-x: visible;
+  }
+  .memo-pw-row { display: flex; align-items: center; gap: 8px; }
+  .memo-pw { font-family: monospace; letter-spacing: 1px; }
+  .memo-item-time { margin-top: 10px; text-align: right; font-size: 11px; color: var(--text-3, #999); opacity: .8; }
+  .memo-empty { text-align: center; color: var(--text-3, #999); padding: 40px 0; font-size: 13px; }
+  .memo-reset-area { margin-top: 32px; padding-top: 16px; border-top: 1px dashed var(--border); text-align: center; }
+  .memo-reset-btn { padding: 6px 14px; border: 1px solid var(--border); background: var(--card); color: var(--text-3, #999); border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .memo-reset-btn:hover { color: #e53935; border-color: #e53935; }
+  /* 备忘录模态 */
+  .memo-modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+  .memo-modal { width: 480px; max-width: 92vw; background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+  .memo-modal h3 { margin: 0 0 16px; font-size: 16px; color: var(--text-1); }
+  .memo-form-group { margin-bottom: 12px; }
+  .memo-form-label { display: block; margin-bottom: 4px; font-size: 12px; color: var(--text-2); }
+  .memo-form-input, .memo-form-textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg, #fff); color: var(--text-1); font-size: 13px; box-sizing: border-box; font-family: inherit; }
+  .memo-form-textarea { min-height: 120px; resize: vertical; white-space: pre-wrap; word-break: normal; overflow-wrap: anywhere; }
+  .memo-form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
   </style>
 </head>
 <body>
@@ -1812,6 +1858,10 @@
         <li class="nav-item" data-section="notes">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
           <span>随手记</span>
+        </li>
+        <li class="nav-item" data-section="memo">
+          <svg class="nav-icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg>
+          <span>备忘录</span>
         </li>
         <li class="nav-item" data-section="pomodoro">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
@@ -1978,6 +2028,26 @@
               <button id="markDoneBtn">标记完成</button>
             </div>
             <div class="notes-editor" id="notesEditor" contenteditable="true" spellcheck="false"></div>
+          </div>
+        </section>
+
+        <section class="content-section memo-section" data-section="memo">
+          <div class="memo-page">
+            <div class="page-title">备忘录</div>
+            <div class="memo-toolbar">
+              <div class="memo-tabs">
+                <button class="memo-tab active" data-cat="password">账号密码</button>
+                <button class="memo-tab" data-cat="prompt">提示词</button>
+                <button class="memo-tab" data-cat="knowledge">📖 知识点</button>
+              </div>
+              <input class="memo-search" id="memoSearch" placeholder="搜索标题 / 内容 / 备注" />
+              <button class="memo-add-btn" id="memoAddBtn">+ 新增</button>
+            </div>
+            <div class="memo-list" id="memoList"></div>
+            <div class="memo-empty" id="memoEmpty">还没有备忘录，点「+ 新增」添加一条</div>
+            <div class="memo-reset-area">
+              <button class="memo-reset-btn" id="memoResetBtn" type="button">重置备忘录数据</button>
+            </div>
           </div>
         </section>
 
@@ -2222,7 +2292,7 @@
     menuBtn.addEventListener('click', () => toggleMenu(true));
     overlay.addEventListener('click', () => toggleMenu(false));
 
-    const DEFAULT_NAV_ORDER = ['notes', 'today', 'pomodoro', 'accounting', 'review', 'inspiration', 'library'];
+    const DEFAULT_NAV_ORDER = ['notes', 'today', 'pomodoro', 'accounting', 'review', 'inspiration', 'library', 'memo'];
     let currentPage = null;
 
     function switchSection(sectionKey) {
@@ -2231,12 +2301,9 @@
       sections.forEach(s => s.classList.toggle('active', s.dataset.section === sectionKey));
       const activeNav = document.querySelector(`.nav-item[data-section="${sectionKey}"]`);
       if (activeNav && mobileTitle) {
-        if (sectionKey === 'accounting') {
-          mobileTitle.style.display = 'none';
-        } else {
-          mobileTitle.style.display = '';
-          mobileTitle.textContent = activeNav.querySelector('span').textContent;
-        }
+        // 顶栏不再显示模块名（含「备忘录」等），只保留「三」菜单图标
+        mobileTitle.style.display = 'none';
+        mobileTitle.textContent = '';
       }
       if (sectionKey === 'review') updateStats();
       if (sectionKey === 'pomodoro' && typeof window.loadPomodoroTasks === 'function') window.loadPomodoroTasks();
@@ -2298,45 +2365,29 @@
     }
 
     function getDefaultTasks(listType = 'today') {
-      if (listType === 'notes') {
-        return [
-          { id: 'n1', text: '买咖啡豆', done: false, review: '' },
-          { id: 'n2', text: '预约牙医', done: false, review: '' },
-        ];
-      }
-      if (listType === 'mobile') {
-        return [
-          { id: 'm1', text: '回复邮件', done: false, review: '', tag: '待处理', desc: '3 封工作邮件待确认，优先客户反馈。' },
-          { id: 'm2', text: '整理灵感碎片', done: false, review: '', tag: '进行中', desc: '把本周随手记的想法分类归档。' },
-          { id: 'm3', text: '清理桌面', done: false, review: '', tag: '低优先级', desc: '整理文件和书架，保持专注环境。' },
-        ];
-      }
-      return [
-        { id: '1', text: '晨间阅读 30 分钟', done: false, review: '' },
-        { id: '2', text: '整理本周工作重点', done: false, review: '' },
-        { id: '3', text: '跟进产品设计稿评审', done: false, review: '' },
-        { id: '4', text: '运动 / 散步 45 分钟', done: false, review: '' },
-      ];
+      // 已禁用默认示例任务：所有类型初始返回空数组，等待用户自行添加
+      return [];
     }
 
     function initData() {
-      // 今日计划：首次按日期存储时，把旧版全局数据迁移到当天 key，避免历史内容丢失
+      // 一次性强制重置：清掉浏览器里之前播种的旧示例任务数据，让今日计划三个区域回到空白初始状态
+      // 用 flag 控制，只执行一次，避免每次刷新都清空用户新增的数据
+      if (!localStorage.getItem('li-workbench-reset-v1')) {
+        Object.keys(localStorage)
+          .filter(k => /^plan_\d{4}-\d{2}-\d{2}$/.test(k) || k === 'li-workbench-tasks')
+          .forEach(k => localStorage.removeItem(k));
+        localStorage.removeItem('li-workbench-tasks-mobile');
+        localStorage.removeItem('li-workbench-tasks-notes');
+        localStorage.setItem('li-workbench-reset-v1', '1');
+      }
+      // 今日计划：当天 key 不存在时初始化为空数组，不塞任何示例任务
       const todayKey = planKeyFor(todayDateStr());
       if (localStorage.getItem(todayKey) === null) {
-        const legacy = localStorage.getItem(STORAGE_KEYS.today);
-        if (legacy) {
-          localStorage.setItem(todayKey, legacy);          // 迁移已有计划到当天
-        } else {
-          saveTasks(getDefaultTasks('today'), 'today');     // 全新用户播种默认计划
-        }
+        saveTasks([], 'today');
       }
-      // 机动 / 随手任务：仍为全局列表，空时播种默认项
+      // 机动 / 随手任务：空时初始化为空数组
       ['notes', 'mobile'].forEach(type => {
-        let tasks = loadTasks(type);
-        if (!tasks.length) {
-          tasks = getDefaultTasks(type);
-          saveTasks(tasks, type);
-        }
+        if (!loadTasks(type).length) saveTasks([], type);
       });
     }
 
@@ -3421,7 +3472,7 @@
       const STORE_KEY = 'accounting-v2';
 
       const EXPENSE_CATEGORIES = ['餐饮', '交通', '购物', '居住', '娱乐', '其他'];
-      const INCOME_CATEGORIES = ['工资', '奖金', '其他'];
+      const INCOME_CATEGORIES = ['工资', '跑外卖', '退货款', '其他'];
 
       function getTodayStr() {
         const d = new Date();
@@ -3754,7 +3805,10 @@
 
       function renderRecordCategories() {
         const list = state.currentType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-        state.currentCategory = list[0];
+        // 只在切换收支类型或初始进入时重置为首个分类，避免覆盖用户已选的分类
+        if (!state.currentCategory || list.indexOf(state.currentCategory) === -1) {
+          state.currentCategory = list[0];
+        }
         if (!recordCategoryGrid) return;
         recordCategoryGrid.innerHTML = '';
         list.forEach(function (c) {
@@ -3923,6 +3977,253 @@
       loadData();
       initAccordion();
       renderAll();
+    })();
+
+    /* ===== 备忘录模块 (独立 IIFE，不依赖其它模块) ===== */
+    (function memoModule() {
+      var STORAGE_KEY = 'memo_list';
+      var CAT_PASSWORD = 'password';
+      var CAT_PROMPT = 'prompt';
+      var CAT_KNOWLEDGE = 'knowledge';
+      var currentCat = CAT_PASSWORD;
+      var keyword = '';
+
+      // 页面加载时强制执行一次备忘录数据重置（只执行一次）
+      // 1. 检测到 memo_list 里如果存在任何记录，直接覆盖为空数组 []
+      // 2. 下次新增记录时使用最新存储格式（id、title、category、content、note、createdAt）
+      // 3. 执行完后在 localStorage 里写一个标记 memo_reset_done: true，以后不再重复执行
+      if (!localStorage.getItem('memo_reset_done')) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+        localStorage.setItem('memo_reset_done', 'true');
+      }
+
+      var els = {
+        list: document.getElementById('memoList'),
+        empty: document.getElementById('memoEmpty'),
+        search: document.getElementById('memoSearch'),
+        addBtn: document.getElementById('memoAddBtn'),
+        tabs: document.querySelectorAll('.memo-tab'),
+        resetBtn: document.getElementById('memoResetBtn')
+      };
+
+      function load() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        catch (e) { return []; }
+      }
+      function save(items) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items || []));
+      }
+      function genId() { return 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+      function fmtTime(ts) {
+        if (!ts) return '';
+        var d = new Date(ts);
+        function p(n) { return (n < 10 ? '0' : '') + n; }
+        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+      }
+      function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function catName(c) {
+        if (c === CAT_PASSWORD) return '账号密码';
+        if (c === CAT_PROMPT) return '提示词';
+        return '知识点';
+      }
+
+      function render() {
+        var items = load();
+        var filtered = items
+          .filter(function (it) { return (it.category || it.cat) === currentCat; })
+          .filter(function (it) {
+            if (!keyword) return true;
+            var kw = keyword.toLowerCase();
+            return (it.title || '').toLowerCase().indexOf(kw) > -1
+              || (it.content || '').toLowerCase().indexOf(kw) > -1
+              || (it.note || '').toLowerCase().indexOf(kw) > -1;
+          });
+        els.list.innerHTML = '';
+        if (!filtered.length) {
+          els.empty.style.display = 'block';
+          return;
+        }
+        els.empty.style.display = 'none';
+        filtered.forEach(function (it) { els.list.appendChild(buildItem(it)); });
+      }
+
+      function buildItem(it) {
+        var card = document.createElement('div');
+        card.className = 'memo-item';
+        card.dataset.id = it.id;
+        var head = document.createElement('div');
+        head.className = 'memo-item-head';
+        var title = document.createElement('div');
+        title.className = 'memo-item-title';
+        title.textContent = it.title || '(未命名)';
+        var actions = document.createElement('div');
+        actions.className = 'memo-item-actions';
+        if (it.category === CAT_PASSWORD || it.cat === CAT_PASSWORD) {
+          var copyPw = mkBtn('复制密码', 'memo-btn', function () { copyText(it.content || ''); });
+          actions.appendChild(copyPw);
+        } else {
+          // 提示词 / 知识点都用「复制内容」
+          var copyC = mkBtn('复制内容', 'memo-btn', function () { copyText(it.content || ''); });
+          actions.appendChild(copyC);
+        }
+        actions.appendChild(mkBtn('编辑', 'memo-btn', function () { openEditor(it); }));
+        actions.appendChild(mkBtn('删除', 'memo-btn danger', function () { delItem(it.id); }));
+        head.appendChild(title);
+        head.appendChild(actions);
+
+        var body = document.createElement('div');
+        body.className = 'memo-item-body';
+        body.innerHTML = renderBody(it);
+
+        var time = document.createElement('div');
+        time.className = 'memo-item-time';
+        time.textContent = fmtTime(it.createdAt || it.ts);
+
+        card.appendChild(head);
+        card.appendChild(body);
+        card.appendChild(time);
+        return card;
+      }
+
+      function renderBody(it) {
+        var c = it.category || it.cat;
+        var html = '';
+        html += '<div class="memo-field"><span class="memo-field-label">分类</span><span class="memo-field-content">' + escapeHtml(catName(c)) + '</span></div>';
+        if (c === CAT_PASSWORD) {
+          html += '<div class="memo-field"><span class="memo-field-label">账号</span><span class="memo-field-content">' + escapeHtml(it.title) + '</span></div>';
+          html += '<div class="memo-field"><span class="memo-field-label">密码</span><span class="memo-field-content memo-pw">' + escapeHtml(it.content) + '</span></div>';
+        } else {
+          // 提示词 / 知识点都用「内容」字段展示
+          html += '<div class="memo-field"><span class="memo-field-label">内容</span><span class="memo-field-content">' + escapeHtml(it.content) + '</span></div>';
+        }
+        if (it.note) {
+          html += '<div class="memo-field"><span class="memo-field-label">备注</span><span class="memo-field-content">' + escapeHtml(it.note) + '</span></div>';
+        }
+        return html;
+      }
+
+      function mkBtn(text, cls, handler) {
+        var b = document.createElement('button');
+        b.className = cls;
+        b.textContent = text;
+        b.addEventListener('click', function (e) { e.stopPropagation(); handler(); });
+        return b;
+      }
+
+      function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+      }
+
+      els.list.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (btn) return;
+        var card = e.target.closest('.memo-item');
+        if (!card) return;
+        card.classList.toggle('expanded');
+      });
+
+      els.tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          els.tabs.forEach(function (t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentCat = tab.dataset.cat;
+          render();
+        });
+      });
+
+      els.search.addEventListener('input', function () {
+        keyword = els.search.value.trim();
+        render();
+      });
+
+      els.addBtn.addEventListener('click', function () { openEditor(null, currentCat); });
+
+      // 重置备忘录数据：只清 memo_list，不影响今日计划/随手记
+      if (els.resetBtn) {
+        els.resetBtn.addEventListener('click', function () {
+          if (!confirm('确定要清除所有备忘录数据吗？')) return;
+          localStorage.removeItem(STORAGE_KEY);
+          location.reload();
+        });
+      }
+
+      function openEditor(item, defaultCat) {
+        var isEdit = !!item;
+        // 默认分类：编辑用记录原分类，新增用传入的当前标签分类
+        var initCat = isEdit ? (item.category || item.cat) : (defaultCat || CAT_PASSWORD);
+        var mask = document.createElement('div');
+        mask.className = 'memo-modal-mask';
+        var modal = document.createElement('div');
+        modal.className = 'memo-modal';
+        // 非「账号密码」分类（提示词 / 知识点）使用通用文案
+        var isPwd = initCat === CAT_PASSWORD;
+        var titleHint = isPwd ? '账号' : (initCat === CAT_PROMPT ? '提示词名称' : '知识点标题');
+        var contentHint = isPwd ? '密码' : (initCat === CAT_PROMPT ? '提示词正文' : '知识点内容');
+        modal.innerHTML =
+          '<h3>' + (isEdit ? '编辑备忘录' : '新增备忘录') + '</h3>' +
+          '<div class="memo-form-group"><label class="memo-form-label">分类</label><select class="memo-form-input" id="memoFormCat">' +
+            '<option value="' + CAT_PASSWORD + '"' + (initCat === CAT_PASSWORD ? ' selected' : '') + '>账号密码</option>' +
+            '<option value="' + CAT_PROMPT + '"' + (initCat === CAT_PROMPT ? ' selected' : '') + '>提示词</option>' +
+            '<option value="' + CAT_KNOWLEDGE + '"' + (initCat === CAT_KNOWLEDGE ? ' selected' : '') + '>知识点</option>' +
+          '</select></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">标题</label><input class="memo-form-input" id="memoFormTitle" placeholder="' + titleHint + '" value="' + escapeHtml(item ? item.title : '') + '" /></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">内容</label><textarea class="memo-form-textarea" id="memoFormContent" placeholder="' + contentHint + '">' + escapeHtml(item ? item.content : '') + '</textarea></div>' +
+          '<div class="memo-form-group"><label class="memo-form-label">备注</label><textarea class="memo-form-textarea" id="memoFormNote" placeholder="可选备注">' + escapeHtml(item ? item.note : '') + '</textarea></div>' +
+          '<div class="memo-form-actions"><button class="memo-btn" id="memoFormCancel">取消</button><button class="memo-add-btn" id="memoFormSave">保存</button></div>';
+        mask.appendChild(modal);
+        document.body.appendChild(mask);
+        var catSel = document.getElementById('memoFormCat');
+        var titleInput = document.getElementById('memoFormTitle');
+        catSel.addEventListener('change', function () {
+          var v = catSel.value;
+          titleInput.placeholder = v === CAT_PASSWORD ? '账号' : (v === CAT_PROMPT ? '提示词名称' : '知识点标题');
+          document.getElementById('memoFormContent').placeholder = v === CAT_PASSWORD ? '密码' : (v === CAT_PROMPT ? '提示词正文' : '知识点内容');
+        });
+        document.getElementById('memoFormCancel').addEventListener('click', function () { document.body.removeChild(mask); });
+        document.getElementById('memoFormSave').addEventListener('click', function () {
+          var cat = catSel.value;
+          var title = titleInput.value.trim();
+          var content = document.getElementById('memoFormContent').value.trim();
+          var note = document.getElementById('memoFormNote').value.trim();
+          if (!title) { titleInput.focus(); return; }
+          var items = load();
+          if (isEdit) {
+            var idx = items.findIndex(function (x) { return x.id === item.id; });
+            if (idx > -1) {
+              items[idx] = { id: item.id, title: title, category: cat, content: content, note: note, createdAt: Date.now() };
+            }
+          } else {
+            items.push({ id: genId(), title: title, category: cat, content: content, note: note, createdAt: Date.now() });
+          }
+          save(items);
+          document.body.removeChild(mask);
+          render();
+        });
+      }
+
+      function delItem(id) {
+        if (!confirm('确定删除这条备忘录？')) return;
+        var items = load().filter(function (x) { return x.id !== id; });
+        save(items);
+        render();
+      }
+
+      render();
+      // 监听云同步 apply 后刷新备忘录列表
+      window.addEventListener('storage', function (e) {
+        if (e.key === STORAGE_KEY) render();
+      });
     })();
   </script>
 </body>
