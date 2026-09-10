@@ -1,0 +1,25 @@
+{
+  "name": "梨的工作台",
+  "short_name": "梨工作台",
+  "description": "个人工作台 - 备忘录、今日计划、记账、随手记、番茄钟",
+  "start_url": "personal-workbench.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

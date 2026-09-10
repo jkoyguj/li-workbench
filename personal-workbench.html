@@ -7,6 +7,12 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>梨的工作台</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="梨工作台">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" href="icon-192.png">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <link rel="stylesheet" href="status-badge.css?v=41">
   <style>
@@ -4225,6 +4231,16 @@
         if (e.key === STORAGE_KEY) render();
       });
     })();
+  </script>
+  <script>
+    // 注册 Service Worker（PWA 离线可用 + 自动后台更新）
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function (e) {
+          console.log('SW 注册失败:', e);
+        });
+      });
+    }
   </script>
 </body>
 </html>
