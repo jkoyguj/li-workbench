@@ -2391,10 +2391,62 @@
       if (localStorage.getItem(todayKey) === null) {
         saveTasks([], 'today');
       }
+      // 顺延：把上一个有计划日期里未完成的任务，自动带到今天的今日计划
+      carryOverUnfinishedTasks();
       // 机动 / 随手任务：空时初始化为空数组
       ['notes', 'mobile'].forEach(type => {
         if (!loadTasks(type).length) saveTasks([], type);
       });
+    }
+
+    // 将上一个有计划日期里「未完成」的任务顺延到今天；每天只执行一次，避免重复
+    function carryOverUnfinishedTasks() {
+      const today = todayDateStr();
+      const carryFlag = 'plan-carryover-' + today;
+      if (localStorage.getItem(carryFlag)) return; // 今天已处理过
+
+      // 找出所有日期早于今天的 plan_* 键，取最近的一天作为顺延来源
+      const prevDates = Object.keys(localStorage)
+        .filter(k => /^plan_\d{4}-\d{2}-\d{2}$/.test(k))
+        .map(k => k.replace('plan_', ''))
+        .filter(d => d < today)
+        .sort((a, b) => (a < b ? 1 : a > b ? -1 : 0)); // 降序，最近的在前
+
+      if (prevDates.length === 0) {
+        localStorage.setItem(carryFlag, '1');
+        return;
+      }
+
+      const latestPrevDate = prevDates[0];
+      let prevTasks = [];
+      try {
+        const data = localStorage.getItem(planKeyFor(latestPrevDate));
+        prevTasks = data ? JSON.parse(data) : [];
+      } catch { prevTasks = []; }
+
+      // 收集未完成的任务（status !== 'done'），生成新 id 后追加到今日计划
+      const carried = [];
+      prevTasks.forEach(t => {
+        let status = t.status || (t.done ? 'done' : 'todo');
+        if (status === 'review') status = 'delayed';
+        if (status === 'done') return;
+        carried.push({
+          id: generateId(),
+          text: t.text,
+          done: false,
+          status: 'todo',
+          priority: t.priority || 'p2',
+          review: '',
+          carriedFrom: latestPrevDate
+        });
+      });
+
+      if (carried.length > 0) {
+        const todayTasks = loadTasks('today');
+        saveTasks(todayTasks.concat(carried), 'today');
+      }
+
+      localStorage.setItem(carryFlag, '1');
     }
 
     function generateId() {
