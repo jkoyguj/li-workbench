@@ -2430,6 +2430,30 @@
       localStorage.setItem(todayKey, '[]');
     }
 
+    // 在页面右下角放一个浮动测试按钮，手机端无需控制台、无需地址栏参数即可触发顺延测试
+    function injectRolloverTestButton() {
+      if (document.getElementById('rolloverTestBtn')) return;
+      const btn = document.createElement('button');
+      btn.id = 'rolloverTestBtn';
+      btn.textContent = '测试顺延';
+      btn.style.cssText = [
+        'position:fixed', 'right:16px', 'bottom:90px',
+        'z-index:9999', 'padding:10px 14px',
+        'background:#4f46e5', 'color:#fff', 'border:none',
+        'border-radius:999px', 'font-size:13px',
+        'box-shadow:0 2px 8px rgba(0,0,0,.3)',
+        'cursor:pointer'
+      ].join(';');
+      btn.addEventListener('click', () => {
+        seedTestDataForRollover();
+        carryOverUnfinishedTasks();
+        renderAllTaskLists();
+        const cnt = loadTasks('today').length;
+        alert('已播种测试数据并触发顺延\n今日计划任务数：' + cnt + '\n（预期 2 条：昨天未完成-待处理、昨天未完成-已延期）');
+      });
+      document.body.appendChild(btn);
+    }
+
     // 一次性迁移：为历史任务补齐 completed / last_rollover_date / date 字段，仅执行一次
     function migrateTasksForRollover() {
       const flag = 'li-workbench-rollover-migrated-v1';
@@ -2899,6 +2923,12 @@
 
     initData();
     renderAllTaskLists();
+    // 注入浮动测试按钮，手机端无控制台时也能验证顺延功能
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', injectRolloverTestButton);
+    } else {
+      injectRolloverTestButton();
+    }
 
     // 日期选择器：默认当天、切换日期即加载对应日期的计划
     if (planDate) {
