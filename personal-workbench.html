@@ -2355,10 +2355,15 @@
         return tasks.map(t => {
           let status = t.status || (t.done ? 'done' : 'todo');
           if (status === 'review') status = 'delayed'; // 兼容旧状态名
+          // completed 字段归一化：历史数据没有该字段时，从 done/status 派生
+          const completed = (typeof t.completed === 'boolean')
+            ? t.completed
+            : (status === 'done' || !!t.done);
           return {
             ...t,
             status: status,
-            priority: t.priority || 'p2'
+            priority: t.priority || 'p2',
+            completed: completed
           };
         });
       } catch {
@@ -2386,12 +2391,14 @@
         localStorage.removeItem('li-workbench-tasks-notes');
         localStorage.setItem('li-workbench-reset-v1', '1');
       }
+      // 一次性数据迁移：为所有历史任务补 completed / last_rollover_date / date 字段
+      migrateTasksForRollover();
       // 今日计划：当天 key 不存在时初始化为空数组，不塞任何示例任务
       const todayKey = planKeyFor(todayDateStr());
       if (localStorage.getItem(todayKey) === null) {
         saveTasks([], 'today');
       }
-      // 顺延：把上一个有计划日期里未完成的任务，自动带到今天的今日计划
+      // 顺延：把所有早于今天且未完成任务，自动带到今天的今日计划
       carryOverUnfinishedTasks();
       // 机动 / 随手任务：空时初始化为空数组
       ['notes', 'mobile'].forEach(type => {
@@ -2399,53 +2406,113 @@
       });
     }
 
-    // 将上一个有计划日期里「未完成」的任务顺延到今天；每天只执行一次，避免重复
+    // 一次性迁移：为历史任务补齐 completed / last_rollover_date / date 字段，仅执行一次
+    function migrateTasksForRollover() {
+      const flag = 'li-workbench-rollover-migrated-v1';
+      if (localStorage.getItem(flag)) return;
+      const keys = Object.keys(localStorage).filter(k => /^plan_\d{4}-\d{2}-\d{2}$/.test(k));
+      keys.forEach(k => {
+        const dateStr = k.replace('plan_', '');
+        let tasks;
+        try { tasks = JSON.parse(localStorage.getItem(k) || '[]'); }
+        catch { tasks = []; }
+        let changed = false;
+        tasks.forEach(t => {
+          let status = t.status || (t.done ? 'done' : 'todo');
+          if (status === 'review') status = 'delayed';
+          // completed: 历史数据没有该字段时，从 done/status 派生；只要不是已完成统一 false
+          if (typeof t.completed !== 'boolean') {
+            t.completed = (status === 'done' || !!t.done);
+            changed = true;
+          }
+          if (t.last_rollover_date === undefined) {
+            t.last_rollover_date = null;
+            changed = true;
+          }
+          if (t.date === undefined) {
+            t.date = dateStr; // 历史任务回填其所在桶的日期
+            changed = true;
+          }
+        });
+        if (changed) localStorage.setItem(k, JSON.stringify(tasks));
+      });
+      localStorage.setItem(flag, '1');
+    }
+
+    // 顺延核心逻辑：扫描所有早于今天的 plan_*，把 completed===false 的任务复制到今天
+    // 防重复：每条任务用 last_rollover_date 标记，同一天只顺延一次
     function carryOverUnfinishedTasks() {
       const today = todayDateStr();
-      const carryFlag = 'plan-carryover-' + today;
-      if (localStorage.getItem(carryFlag)) return; // 今天已处理过
 
-      // 找出所有日期早于今天的 plan_* 键，取最近的一天作为顺延来源
+      // 快速退出：今天整轮已跑过则不再扫描（节省刷新时的开销）
+      const carryFlag = 'plan-carryover-' + today;
+      if (localStorage.getItem(carryFlag)) return;
+
+      // 找出所有日期早于今天的 plan_* 键，升序遍历（从最早到最近）
       const prevDates = Object.keys(localStorage)
         .filter(k => /^plan_\d{4}-\d{2}-\d{2}$/.test(k))
         .map(k => k.replace('plan_', ''))
         .filter(d => d < today)
-        .sort((a, b) => (a < b ? 1 : a > b ? -1 : 0)); // 降序，最近的在前
+        .sort(); // 字符串升序即日期升序
 
       if (prevDates.length === 0) {
         localStorage.setItem(carryFlag, '1');
         return;
       }
 
-      const latestPrevDate = prevDates[0];
-      let prevTasks = [];
-      try {
-        const data = localStorage.getItem(planKeyFor(latestPrevDate));
-        prevTasks = data ? JSON.parse(data) : [];
-      } catch { prevTasks = []; }
+      let carriedTotal = 0;
+      const todayTasks = loadTasks('today');
 
-      // 收集未完成的任务（status !== 'done'），生成新 id 后追加到今日计划
-      const carried = [];
-      prevTasks.forEach(t => {
-        let status = t.status || (t.done ? 'done' : 'todo');
-        if (status === 'review') status = 'delayed';
-        if (status === 'done') return;
-        carried.push({
-          id: generateId(),
-          text: t.text,
-          done: false,
-          status: 'todo',
-          priority: t.priority || 'p2',
-          review: '',
-          carriedFrom: latestPrevDate
+      prevDates.forEach(d => {
+        // 直接读原始数组（避免 loadTasks 派生字段干扰写回）
+        let prevTasks;
+        try { prevTasks = JSON.parse(localStorage.getItem(planKeyFor(d)) || '[]'); }
+        catch { prevTasks = []; }
+
+        let dirty = false;
+        const carried = [];
+        prevTasks.forEach(t => {
+          // 归一化 completed（兼容历史数据没有该字段的情况）
+          let status = t.status || (t.done ? 'done' : 'todo');
+          if (status === 'review') status = 'delayed';
+          const completed = (typeof t.completed === 'boolean')
+            ? t.completed
+            : (status === 'done' || !!t.done);
+
+          // 已完成 → 不顺延
+          if (completed) return;
+          // 今天已顺延过 → 跳过，防止重复滚动
+          if (t.last_rollover_date === today) return;
+
+          // 生成顺延副本，原任务其他属性原样保留
+          const copy = {
+            ...t,
+            id: generateId(),
+            completed: false,
+            done: false,
+            status: 'todo',           // 副本重置为待处理，原任务状态保留在历史桶里
+            review: '',
+            date: today,              // 副本应执行日期 = 今天
+            carriedFrom: d,           // 来源日期，便于追溯
+            last_rollover_date: today // 副本今天已"被顺延过"，避免后续重复
+          };
+          carried.push(copy);
+
+          // 在原任务上标记 last_rollover_date，下次刷新不会再次顺延同一条
+          t.last_rollover_date = today;
+          dirty = true;
         });
+
+        if (dirty) {
+          localStorage.setItem(planKeyFor(d), JSON.stringify(prevTasks));
+        }
+        if (carried.length > 0) {
+          todayTasks.push(...carried);
+          carriedTotal += carried.length;
+        }
       });
 
-      if (carried.length > 0) {
-        const todayTasks = loadTasks('today');
-        saveTasks(todayTasks.concat(carried), 'today');
-      }
-
+      if (carriedTotal > 0) saveTasks(todayTasks, 'today');
       localStorage.setItem(carryFlag, '1');
     }
 
@@ -2469,7 +2536,17 @@
 
     function addTask(text, listType = 'today') {
       const tasks = loadTasks(listType);
-      const newTask = { id: generateId(), text, done: false, status: 'todo', priority: 'p2', review: '' };
+      const newTask = {
+        id: generateId(),
+        text,
+        done: false,
+        status: 'todo',
+        priority: 'p2',
+        review: '',
+        completed: false,           // 顺延唯一判断字段：未完成=false
+        last_rollover_date: null,   // 防重复：从未被顺延过
+        date: listType === 'today' ? currentPlanDate : null  // 任务应执行日期
+      };
       if (listType === 'mobile') {
         newTask.tag = '待处理';
         newTask.desc = '';
@@ -3023,7 +3100,8 @@
         if (!task) return;
         const done = taskCheck.checked;
         const status = done ? 'done' : 'todo';
-        updateTask(id, { done, status }, listType);
+        // 同步写入 completed + done + status，三者永远保持一致
+        updateTask(id, { done, status, completed: done }, listType);
         item.classList.toggle('done', done);
         const statusEl = item.querySelector('.status-tag');
         if (statusEl) statusEl.innerHTML = StatusTag.html(status, { size: 'sm' });
@@ -3042,7 +3120,8 @@
           statuses: ['todo', 'doing', 'delayed', 'done'],
           onChange: (newStatus) => {
             const done = newStatus === 'done';
-            updateTask(id, { status: newStatus, done }, listType);
+            // 状态切换同样同步 completed
+            updateTask(id, { status: newStatus, done, completed: done }, listType);
             item.classList.toggle('done', done);
             statusTag.innerHTML = StatusTag.html(newStatus, { size: 'sm' });
             updateStats();
